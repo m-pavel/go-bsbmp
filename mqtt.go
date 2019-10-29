@@ -5,6 +5,9 @@ import (
 	_ "net/http"
 	_ "net/http/pprof"
 
+	"fmt"
+	"strconv"
+
 	"github.com/d2r2/go-bsbmp"
 	"github.com/d2r2/go-i2c"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
@@ -12,7 +15,7 @@ import (
 )
 
 type BsBmpService struct {
-	addr *int
+	addr *uint
 	line *int
 	i2c  *i2c.I2C
 	bmp  *bsbmp.BMP
@@ -23,18 +26,23 @@ type Request struct {
 	Altitude    float32 `json:"altitude"`
 }
 
-func (ts BsBmpService) PrepareCommandLineParams() {
-	flag.Int("i2c-addr", 0, "I2C address")
-	flag.Int("i2c-line", 1, "I2C line")
+func (ts *BsBmpService) PrepareCommandLineParams() {
+	ts.addr = flag.Uint("i2c-addr", 0, "I2C address")
+	ts.line = flag.Int("i2c-line", 1, "I2C line")
 }
 func (ts BsBmpService) Name() string { return "bsbmp" }
 
 func (ts *BsBmpService) Init(client MQTT.Client, topic, topicc, topica string, debug bool, ss ghm.SendState) error {
 	var err error
-	if ts.i2c, err = i2c.NewI2C(0x76, 1); err != nil {
+	addr, err := strconv.ParseInt(fmt.Sprintf("%d", *ts.addr), 16, 64)
+	if err != nil {
 		return err
 	}
-	ts.bmp, err = bsbmp.NewBMP(bsbmp.BMP280, ts.i2c)
+	fmt.Println(addr)
+	if ts.i2c, err = i2c.NewI2C(uint8(addr), *ts.line); err != nil {
+		return err
+	}
+	ts.bmp, err = bsbmp.NewBMP(bsbmp.BMP180, ts.i2c)
 	return err
 }
 
