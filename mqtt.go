@@ -26,8 +26,8 @@ type BsBmpService struct {
 }
 type Request struct {
 	Temperature  float32 `json:"temperature"`
-	PressurePa   float32 `json:"pressure-pa"`
-	PressureMmHg float32 `json:"pressure-mmhg"`
+	PressurePa   float32 `json:"pressure_pa"`
+	PressureMmHg float32 `json:"pressure_mmhg"`
 	Altitude     float32 `json:"altitude"`
 }
 
