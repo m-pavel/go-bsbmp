@@ -12,7 +12,7 @@ import (
 
 	"github.com/d2r2/go-bsbmp"
 	"github.com/d2r2/go-i2c"
-	"github.com/d2r2/go-logger"
+	logger "github.com/d2r2/go-logger"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/m-pavel/go-hassio-mqtt/pkg"
 )
@@ -39,14 +39,6 @@ func (ts BsBmpService) Name() string { return "bsbmp" }
 
 func (ts *BsBmpService) Init(client MQTT.Client, topic, topicc, topica string, debug bool, ss ghm.SendState) error {
 	var err error
-	addr, err := strconv.ParseInt(fmt.Sprintf("%d", *ts.addr), 16, 64)
-	if err != nil {
-		return err
-	}
-	if ts.i2c, err = i2c.NewI2C(uint8(addr), *ts.line); err != nil {
-		return err
-	}
-	ts.bmp, err = bsbmp.NewBMP(bsbmp.BMP180, ts.i2c)
 	ts.debug = debug
 	if debug {
 		logger.ChangePackageLogLevel("i2c", logger.DebugLevel)
@@ -55,6 +47,15 @@ func (ts *BsBmpService) Init(client MQTT.Client, topic, topicc, topica string, d
 		logger.ChangePackageLogLevel("i2c", logger.InfoLevel)
 		logger.ChangePackageLogLevel("bsbmp", logger.InfoLevel)
 	}
+
+	addr, err := strconv.ParseInt(fmt.Sprintf("%d", *ts.addr), 16, 64)
+	if err != nil {
+		return err
+	}
+	if ts.i2c, err = i2c.NewI2C(uint8(addr), *ts.line); err != nil {
+		return err
+	}
+	ts.bmp, err = bsbmp.NewBMP(bsbmp.BMP180, ts.i2c)
 	return err
 }
 
