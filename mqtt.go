@@ -24,13 +24,14 @@ type BsBmpService struct {
 	debug bool
 }
 type Request struct {
-	Temperature float32 `json:"temperature"`
-	Pressure    float32 `json:"pressure"`
-	Altitude    float32 `json:"altitude"`
+	Temperature  float32 `json:"temperature"`
+	PressurePa   float32 `json:"pressure-pa"`
+	PressureMmHg float32 `json:"pressure-mmhg"`
+	Altitude     float32 `json:"altitude"`
 }
 
 func (ts *BsBmpService) PrepareCommandLineParams() {
-	ts.addr = flag.Uint("i2c-addr", 0, "I2C address")
+	ts.addr = flag.Uint("i2c-addr", 0, "I2C address (hex)")
 	ts.line = flag.Int("i2c-line", 1, "I2C line")
 }
 func (ts BsBmpService) Name() string { return "bsbmp" }
@@ -41,7 +42,6 @@ func (ts *BsBmpService) Init(client MQTT.Client, topic, topicc, topica string, d
 	if err != nil {
 		return err
 	}
-	fmt.Println(addr)
 	if ts.i2c, err = i2c.NewI2C(uint8(addr), *ts.line); err != nil {
 		return err
 	}
@@ -56,7 +56,10 @@ func (ts BsBmpService) Do() (interface{}, error) {
 	if req.Temperature, err = ts.bmp.ReadTemperatureC(bsbmp.ACCURACY_STANDARD); err != nil {
 		return nil, err
 	}
-	if req.Pressure, err = ts.bmp.ReadPressurePa(bsbmp.ACCURACY_STANDARD); err != nil {
+	if req.PressurePa, err = ts.bmp.ReadPressurePa(bsbmp.ACCURACY_STANDARD); err != nil {
+		return nil, err
+	}
+	if req.PressureMmHg, err = ts.bmp.ReadPressureMmHg(bsbmp.ACCURACY_STANDARD); err != nil {
 		return nil, err
 	}
 	if req.Altitude, err = ts.bmp.ReadAltitude(bsbmp.ACCURACY_STANDARD); err != nil {
