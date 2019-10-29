@@ -50,8 +50,10 @@ func (ts *BsBmpService) Init(client MQTT.Client, topic, topicc, topica string, d
 	ts.debug = debug
 	if debug {
 		logger.ChangePackageLogLevel("i2c", logger.DebugLevel)
+		logger.ChangePackageLogLevel("bsbmp", logger.DebugLevel)
 	} else {
 		logger.ChangePackageLogLevel("i2c", logger.InfoLevel)
+		logger.ChangePackageLogLevel("bsbmp", logger.InfoLevel)
 	}
 	return err
 }
