@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"log"
+
 	"github.com/d2r2/go-bsbmp"
 	"github.com/d2r2/go-i2c"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
@@ -15,10 +17,11 @@ import (
 )
 
 type BsBmpService struct {
-	addr *uint
-	line *int
-	i2c  *i2c.I2C
-	bmp  *bsbmp.BMP
+	addr  *uint
+	line  *int
+	i2c   *i2c.I2C
+	bmp   *bsbmp.BMP
+	debug bool
 }
 type Request struct {
 	Temperature float32 `json:"temperature"`
@@ -43,6 +46,7 @@ func (ts *BsBmpService) Init(client MQTT.Client, topic, topicc, topica string, d
 		return err
 	}
 	ts.bmp, err = bsbmp.NewBMP(bsbmp.BMP180, ts.i2c)
+	ts.debug = debug
 	return err
 }
 
@@ -57,6 +61,9 @@ func (ts BsBmpService) Do() (interface{}, error) {
 	}
 	if req.Altitude, err = ts.bmp.ReadAltitude(bsbmp.ACCURACY_STANDARD); err != nil {
 		return nil, err
+	}
+	if ts.debug {
+		log.Println(req)
 	}
 	return &req, err
 }
