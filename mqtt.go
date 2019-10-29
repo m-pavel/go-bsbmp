@@ -12,6 +12,7 @@ import (
 
 	"github.com/d2r2/go-bsbmp"
 	"github.com/d2r2/go-i2c"
+	"github.com/d2r2/go-logger"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"github.com/m-pavel/go-hassio-mqtt/pkg"
 )
@@ -47,6 +48,11 @@ func (ts *BsBmpService) Init(client MQTT.Client, topic, topicc, topica string, d
 	}
 	ts.bmp, err = bsbmp.NewBMP(bsbmp.BMP180, ts.i2c)
 	ts.debug = debug
+	if debug {
+		logger.ChangePackageLogLevel("i2c", logger.DebugLevel)
+	} else {
+		logger.ChangePackageLogLevel("i2c", logger.InfoLevel)
+	}
 	return err
 }
 
